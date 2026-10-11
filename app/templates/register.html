@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block body %}
+<a class="skip-link" href="#main">Skip to content</a>
+<main class="auth-page auth-page--register" id="main">
+  <a class="brand" href="/" aria-label="Passcode home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8 21.2 12 12 21.2 2.8 12 12 2.8Z"/><path d="m8.7 12 2.2 2.2 4.6-4.6"/></svg></span><span>passcode<span class="brand-period">.</span></span></a>
+  <section class="auth-card" aria-labelledby="register-heading">
+    <div class="card-glow" aria-hidden="true"></div>
+    <section id="register-step" class="auth-content">
+      <div class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7" r="4"/><path d="M19 8v6m-3-3h6"/></svg></div>
+      <p class="eyebrow">GET STARTED <span class="eyebrow-dot"></span></p>
+      <h1 id="register-heading">Create your account<span class="accent-period">.</span></h1>
+      <p class="lead">Just your name and email. No password to remember.</p>
+      <div id="register-message" class="message" role="status" aria-live="polite" hidden></div>
+      <form id="register-form" novalidate>
+        <div class="field"><label for="name">Full name</label><div class="input-wrap"><span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></span><input id="name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Your full name" required></div></div>
+        <div class="field"><label for="register-email">Email address</label><div class="input-wrap"><span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="m5 7 7 5 7-5"/></svg></span><input id="register-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required></div></div>
+        <button class="btn btn--primary" type="submit" id="register-submit"><span class="btn__label">Continue to verification</span><svg class="button-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      </form>
+      <div class="separator"><span></span><small>ALREADY HAVE AN ACCOUNT?</small><span></span></div>
+      <a href="/" class="btn btn--secondary">Back to sign in <span aria-hidden="true">↗</span></a>
+      <p class="security-note"><span class="shield-dot" aria-hidden="true"></span> Your details are protected</p>
+    </section>
+    <section id="register-otp-step" class="auth-content" hidden>
+      <a href="/register" class="back-link"><span aria-hidden="true">←</span> Back to details</a>
+      <div class="section-icon section-icon--otp" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+      <p class="eyebrow">VERIFY YOUR EMAIL <span class="eyebrow-dot"></span></p>
+      <h1>One last step<span class="accent-period">.</span></h1><p class="lead">Enter the code sent to <strong id="register-otp-email" class="break-all"></strong>.</p>
+      <div id="register-otp-message" class="message" role="status" aria-live="polite" hidden></div>
+      <form id="register-otp-form" novalidate>
+        <div class="otp-group"><label for="reg-otp-1">Verification code</label><div class="otp-boxes" id="reg-otp-boxes">{% for n in range(1, 7) %}<input id="reg-otp-{{n}}" class="reg-otp-digit" type="text" inputmode="numeric" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" pattern="[0-9]*" maxlength="1" aria-label="Digit {{n}}" required>{% endfor %}</div></div>
+        <div class="timer" id="reg-timer"><span class="timer__symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><div class="timer__copy"><p class="timer__caption" id="reg-timer-caption">Code expires in</p><p class="timer__time" id="reg-timer-time">5 min</p></div><span class="timer__status">ACTIVE</span></div>
+        <button class="btn btn--primary" id="verify-register-otp" type="submit"><span class="btn__label">Verify email</span><svg class="button-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      </form>
+      <div class="otp-links"><button class="link-btn" id="resend-register-otp" type="button" disabled>Resend code in 60s</button><a href="/" class="link-btn">Back to sign in</a></div>
+      <p class="security-note"><span class="shield-dot" aria-hidden="true"></span> Never share your verification code</p>
+    </section>
+    <section id="register-done" class="auth-content" hidden><div class="section-icon section-icon--success" aria-hidden="true">✓</div><p class="eyebrow">ALL SET</p><h1>Email verified<span class="accent-period">.</span></h1><div class="message message--success" role="status">Your email is verified. You can now sign in.</div><a href="/" class="btn btn--primary">Go to sign in <span aria-hidden="true">↗</span></a></section>
+  </section>
+  <footer class="page-footer"><span>© Passcode</span><span class="footer-separator">·</span><span>Simple. Secure. Passwordless.</span></footer>
+</main>
+<script src="/static/app.js" defer></script>
+{% endblock %}
