@@ -30,7 +30,7 @@
       <form id="otp-form" novalidate>
         <input type="hidden" id="otp-target-email">
         <div class="otp-group"><label for="otp-1">Verification code</label><div class="otp-boxes" id="otp-boxes">{% for n in range(1, 7) %}<input id="otp-{{n}}" class="otp-digit" type="text" inputmode="numeric" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" pattern="[0-9]*" maxlength="1" aria-label="Digit {{n}}" required>{% endfor %}</div></div>
-        <div class="timer" id="timer"><span class="timer__symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><div class="timer__copy"><p class="timer__caption" id="timer-caption">Code expires in</p><p class="timer__time" id="timer-time">5 min</p></div><span class="timer__status">ACTIVE</span></div>
+        <div class="timer" id="timer"><span class="timer__symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><div class="timer__copy"><p class="timer__caption" id="timer-caption">Code expires in</p><p class="timer__time" id="timer-time">5 min 00 sec</p></div><span class="timer__status">ACTIVE</span></div>
         <button class="btn btn--primary" id="verify-login-otp" type="submit"><span class="btn__label">Verify and sign in</span><svg class="button-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
       </form>
       <div class="otp-links"><button class="link-btn" id="resend-login-otp" type="button" disabled>Resend code in 60s</button></div>

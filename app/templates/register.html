@@ -22,14 +22,14 @@
       <p class="security-note"><span class="shield-dot" aria-hidden="true"></span> Your details are protected</p>
     </section>
     <section id="register-otp-step" class="auth-content" hidden>
-      <a href="/register" class="back-link"><span aria-hidden="true">←</span> Back to details</a>
+      <a href="/register" class="back-link" id="reg-back-link"><span aria-hidden="true">←</span> Back to details</a>
       <div class="section-icon section-icon--otp" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
       <p class="eyebrow">VERIFY YOUR EMAIL <span class="eyebrow-dot"></span></p>
       <h1>One last step<span class="accent-period">.</span></h1><p class="lead">Enter the code sent to <strong id="register-otp-email" class="break-all"></strong>.</p>
       <div id="register-otp-message" class="message" role="status" aria-live="polite" hidden></div>
       <form id="register-otp-form" novalidate>
-        <div class="otp-group"><label for="reg-otp-1">Verification code</label><div class="otp-boxes" id="reg-otp-boxes">{% for n in range(1, 7) %}<input id="reg-otp-{{n}}" class="reg-otp-digit" type="text" inputmode="numeric" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" pattern="[0-9]*" maxlength="1" aria-label="Digit {{n}}" required>{% endfor %}</div></div>
-        <div class="timer" id="reg-timer"><span class="timer__symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><div class="timer__copy"><p class="timer__caption" id="reg-timer-caption">Code expires in</p><p class="timer__time" id="reg-timer-time">5 min</p></div><span class="timer__status">ACTIVE</span></div>
+        <div class="otp-group"><label for="reg-otp-1">Verification code</label><div class="otp-boxes" id="reg-otp-boxes">{% for n in range(1, 7) %}<input id="reg-otp-{{n}}" class="otp-digit reg-otp-digit" type="text" inputmode="numeric" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" pattern="[0-9]*" maxlength="1" aria-label="Digit {{n}}" required>{% endfor %}</div></div>
+        <div class="timer" id="reg-timer"><span class="timer__symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><div class="timer__copy"><p class="timer__caption" id="reg-timer-caption">Code expires in</p><p class="timer__time" id="reg-timer-time">5 min 00 sec</p></div><span class="timer__status">ACTIVE</span></div>
         <button class="btn btn--primary" id="verify-register-otp" type="submit"><span class="btn__label">Verify email</span><svg class="button-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
       </form>
       <div class="otp-links"><button class="link-btn" id="resend-register-otp" type="button" disabled>Resend code in 60s</button><a href="/" class="link-btn">Back to sign in</a></div>

@@ -1,4 +1,3 @@
-
 const $ = (id) => document.getElementById(id);
 
 async function api(url, payload) {
@@ -111,6 +110,15 @@ function wireDigits(selector) {
   return () => digitsFrom(selector);
 }
 
+const activeTimers = new Map();
+
+function formatCountdown(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const mins = Math.floor(s / 60);
+  const secs = String(s % 60).padStart(2, "0");
+  return `${mins} min ${secs} sec`;
+}
+
 function startTimer({
   seconds,
   timeId,
@@ -120,42 +128,53 @@ function startTimer({
   resendButton,
   resendText,
 }) {
-  let remaining = seconds;
+  if (activeTimers.has(timerId)) {
+    window.clearInterval(activeTimers.get(timerId));
+    activeTimers.delete(timerId);
+  }
+
   const total = Math.max(seconds, 1);
   const circumference = 163.36;
+  const expiresAt = Date.now() + Math.max(seconds, 0) * 1000;
 
   const update = () => {
+    const now = Date.now();
+    const remainingMs = Math.max(0, expiresAt - now);
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const isExpired = remainingSeconds <= 0;
+
     const time = $(timeId);
     const caption = $(captionId);
     const ring = $(ringId);
     const timer = $(timerId);
+    const status = timer ? timer.querySelector(".timer__status") : null;
 
     if (time) {
-      const minutes = Math.ceil(Math.max(remaining, 0) / 60);
-      time.textContent = remaining <= 0 ? "Expired" : `${minutes} min`;
+      time.textContent = formatCountdown(remainingSeconds);
     }
-    if (caption && remaining > 0) {
-      caption.textContent = "Code expires in";
+
+    if (caption) {
+      caption.textContent = isExpired ? "Code expired" : "Code expires in";
+    }
+
+    if (status) {
+      status.textContent = isExpired ? "EXPIRED" : "ACTIVE";
     }
 
     if (ring) {
       ring.style.strokeDashoffset = String(
-        circumference * (1 - Math.max(remaining, 0) / total)
+        circumference * (1 - Math.max(remainingSeconds, 0) / total)
       );
     }
 
     if (timer) {
-      timer.classList.toggle("is-expired", remaining <= 0);
-    }
-
-    if (remaining <= 0 && caption) {
-      caption.textContent = "Code expired";
+      timer.classList.toggle("is-expired", isExpired);
     }
 
     if (resendButton) {
       const cooldownLeft = Math.max(
         0,
-        (window.__resendUntil || 0) - Date.now()
+        (window.__resendUntil || 0) - now
       );
       const secondsLeft = Math.ceil(cooldownLeft / 1000);
 
@@ -165,23 +184,27 @@ function startTimer({
           ? `Resend code in ${secondsLeft}s`
           : resendText;
     }
+
+    return { isExpired, cooldownDone: now >= (window.__resendUntil || 0) };
   };
 
   update();
 
   const interval = window.setInterval(() => {
-    if (remaining > 0) remaining -= 1;
-    update();
+    const { isExpired, cooldownDone } = update();
 
-    if (
-      remaining <= 0 &&
-      Date.now() >= (window.__resendUntil || 0)
-    ) {
+    if (isExpired && cooldownDone) {
       window.clearInterval(interval);
+      activeTimers.delete(timerId);
     }
   }, 1000);
 
-  return () => window.clearInterval(interval);
+  activeTimers.set(timerId, interval);
+
+  return () => {
+    window.clearInterval(interval);
+    activeTimers.delete(timerId);
+  };
 }
 
 // LOGIN PAGE
@@ -266,7 +289,7 @@ function startTimer({
         resendText: "Resend OTP",
       });
 
-      $("otp-1").focus();
+      $("otp-1")?.focus();
     } catch (error) {
       showMessage(loginMessage, error.message);
     } finally {
@@ -282,7 +305,7 @@ function startTimer({
 
     if (!/^[0-9]{6}$/.test(otp)) {
       showMessage(otpMessage, "Enter all 6 digits of your OTP.");
-      $("otp-1").focus();
+      $("otp-1")?.focus();
       return;
     }
 
@@ -314,7 +337,7 @@ function startTimer({
         resendButton.textContent = "Resend OTP";
       }
 
-      $("otp-1").focus();
+      $("otp-1")?.focus();
     } finally {
       busy(verifyButton, false, "Verify and sign in");
     }
@@ -367,7 +390,7 @@ function startTimer({
         resendText: "Resend OTP",
       });
 
-      $("otp-1").focus();
+      $("otp-1")?.focus();
     } catch (error) {
       showMessage(otpMessage, error.message);
       resendButton.disabled = false;
@@ -453,7 +476,7 @@ function startTimer({
         resendText: "Resend OTP",
       });
 
-      $("reg-otp-1").focus();
+      $("reg-otp-1")?.focus();
     } catch (error) {
       showMessage(message, error.message);
     } finally {
@@ -461,7 +484,7 @@ function startTimer({
     }
   });
 
-  $("register-otp-form").addEventListener("submit", async (event) => {
+  $("register-otp-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     clearMessage(otpMessage);
 
@@ -469,6 +492,7 @@ function startTimer({
 
     if (!/^[0-9]{6}$/.test(otp)) {
       showMessage(otpMessage, "Enter all 6 digits of your OTP.");
+      $("reg-otp-1")?.focus();
       return;
     }
 
@@ -480,6 +504,11 @@ function startTimer({
         otp,
       });
 
+      if (stopTimer) {
+        stopTimer();
+        stopTimer = null;
+      }
+
       $("register-otp-step").hidden = true;
       $("register-done").hidden = false;
 
@@ -490,12 +519,29 @@ function startTimer({
       );
     } catch (error) {
       showMessage(otpMessage, error.message);
+
+      $("reg-otp-boxes")?.classList.add("has-error");
+
+      window.setTimeout(() => {
+        $("reg-otp-boxes")?.classList.remove("has-error");
+      }, 400);
+
+      if (
+        error.body?.code === "otp_expired" ||
+        error.body?.code === "too_many_attempts"
+      ) {
+        resendButton.disabled = false;
+        resendButton.textContent = "Resend OTP";
+      }
+
+      $("reg-otp-1")?.focus();
     } finally {
       busy(verifyButton, false, "Verify email");
     }
   });
 
   resendButton.addEventListener("click", async () => {
+    clearMessage(otpMessage);
     resendButton.disabled = true;
 
     try {
@@ -525,13 +571,29 @@ function startTimer({
         resendText: "Resend OTP",
       });
 
-      $("reg-otp-1").focus();
+      $("reg-otp-1")?.focus();
     } catch (error) {
       showMessage(otpMessage, error.message);
       resendButton.disabled = false;
       resendButton.textContent = "Resend OTP";
     }
   });
+
+  const backLink = $("reg-back-link") || $("register-otp-step")?.querySelector(".back-link");
+  if (backLink) {
+    backLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (stopTimer) {
+        stopTimer();
+        stopTimer = null;
+      }
+      $("register-otp-step").hidden = true;
+      $("register-step").hidden = false;
+      clearMessage(message);
+      clearMessage(otpMessage);
+      $("name")?.focus();
+    });
+  }
 })();
 
 // DASHBOARD LOGOUT
